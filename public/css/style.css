@@ -1,0 +1,192 @@
+/* TodoApp Custom Styles */
+
+body {
+    background-color: #f0f2f5;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* Ana kutu - navbar ve içerik sarmalayıcı */
+.main-box {
+    background-color: #fff;
+    border-radius: 12px;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+    overflow: hidden;
+}
+
+.main-box .navbar {
+    border-radius: 12px 12px 0 0;
+}
+
+.main-content {
+    min-height: 400px;
+}
+
+/* Durum badge'leri */
+.badge-yapilacak {
+    background-color: #cce5ff;
+    color: #004085;
+    font-size: 0.85rem;
+    padding: 5px 12px;
+    border-radius: 20px;
+}
+
+.badge-yapilmis {
+    background-color: #d4edda;
+    color: #155724;
+    font-size: 0.85rem;
+    padding: 5px 12px;
+    border-radius: 20px;
+}
+
+.badge-ertelenmis {
+    background-color: #fff3cd;
+    color: #856404;
+    font-size: 0.85rem;
+    padding: 5px 12px;
+    border-radius: 20px;
+}
+
+.badge-taslak {
+    background-color: #e2e3e5;
+    color: #383d41;
+    font-size: 0.85rem;
+    padding: 5px 12px;
+    border-radius: 20px;
+}
+
+/* Action butonları */
+.btn-action {
+    font-size: 0.78rem;
+    padding: 4px 10px;
+    border-radius: 4px;
+    margin: 2px;
+    text-decoration: none;
+    display: inline-block;
+    border: 1px solid;
+}
+
+.btn-action-yapilacak {
+    color: #dc3545;
+    border-color: #dc3545;
+    background-color: #fff;
+}
+
+.btn-action-yapilacak:hover {
+    background-color: #dc3545;
+    color: #fff;
+}
+
+.btn-action-yapilmis {
+    color: #28a745;
+    border-color: #28a745;
+    background-color: #fff;
+}
+
+.btn-action-yapilmis:hover {
+    background-color: #28a745;
+    color: #fff;
+}
+
+.btn-action-ertelenmis {
+    color: #e0a800;
+    border-color: #e0a800;
+    background-color: #fff;
+}
+
+.btn-action-ertelenmis:hover {
+    background-color: #e0a800;
+    color: #fff;
+}
+
+.btn-action-taslak {
+    color: #6c757d;
+    border-color: #6c757d;
+    background-color: #fff;
+}
+
+.btn-action-taslak:hover {
+    background-color: #6c757d;
+    color: #fff;
+}
+
+/* Anasayfa durum barları */
+.status-bar {
+    border-radius: 8px;
+    padding: 10px 18px;
+    color: #fff;
+    font-weight: 600;
+    font-size: 0.9rem;
+    display: inline-flex;
+    align-items: center;
+    white-space: nowrap;
+}
+
+.status-bar .bi {
+    margin-right: 8px;
+}
+
+.status-bar-yapilacak {
+    background-color: #2196F3;
+}
+
+.status-bar-yapilmis {
+    background-color: #2e7d32;
+}
+
+.status-bar-ertelenmis {
+    background-color: #f9a825;
+}
+
+.status-bar-taslak {
+    background-color: #78909c;
+}
+
+/* Navbar aktif link */
+.navbar .nav-link.active {
+    font-weight: 600;
+}
+
+/* Sayfa başlığı badge */
+.page-status-badge {
+    display: inline-block;
+    padding: 6px 16px;
+    border-radius: 6px;
+    color: #fff;
+    font-weight: 600;
+    font-size: 0.9rem;
+    margin-top: 10px;
+}
+
+.page-status-badge-yapilacak {
+    background-color: #2196F3;
+}
+
+.page-status-badge-yapilmis {
+    background-color: #2e7d32;
+}
+
+.page-status-badge-ertelenmis {
+    background-color: #f9a825;
+}
+
+.page-status-badge-taslak {
+    background-color: #78909c;
+}
+
+/* Tablo */
+.table th {
+    font-weight: 600;
+    font-size: 0.9rem;
+}
+
+.table td {
+    vertical-align: middle;
+}
+
+/* Hoşgeldiniz kartı */
+.welcome-card {
+    background-color: #fff;
+    border-radius: 12px;
+    padding: 30px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
