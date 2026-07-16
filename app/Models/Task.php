@@ -6,15 +6,22 @@ use Illuminate\Database\Eloquent\Model;
 
 class Task extends Model
 {
-    // Bu alanlar görev kayıtı oluşturulurken veritabanına yazılabilir.
-    // Yani kullanıcıdan gelen başlık, açıklama, tarih ve durum bilgileri burada izin verilen alanlar arasındadır.
+    /**
+     * Toplu Atama (Mass Assignment) İzinleri
+     * 
+     * Laravel'de dışarıdan (örneğin formdan) gelen bir dizi veriyi tek seferde veritabanına kaydetmek
+     * (örn: Task::create($request->all())) güvenlik riski taşır. Çünkü kötü niyetli biri forma 
+     * sahte bir 'is_admin' alanı ekleyip kendini yetkilendirebilir.
+     * $fillable dizisi, SADECE buraya yazdığımız sütunların otomatik doldurulmasına izin vererek bu açığı kapatır.
+     */
     protected $fillable = ['user_id', 'baslik', 'aciklama', 'tarih', 'durum'];
 
-
     /**
-     * URL anahtarlarını kullanıcı dostu Türkçe statü adlarına dönüştüren eşleme tablosu.
-     * Örneğin "yapilacak" anahtarı, kullanıcıya görünen "Yapılacak" metnine çevrilir.
-     * Bu yapı, URL'lerde Türkçe karakter problemleri yaşamamak için kullanılır.
+     * Durum Eşleştirme Sözlüğü (Status Map)
+     * 
+     * Tarayıcı URL'lerinde Türkçe karakterler veya boşluklar sorun yaratabilir (Örn: /tasks/status/Yapılacak).
+     * Bu yüzden URL'de 'yapilacak' gibi temiz (İngilizce karakterli) anahtarlar kullanıyoruz.
+     * Bu dizi, URL'den gelen o temiz anahtarları veritabanındaki orijinal Türkçe metinlere çevirmemizi sağlar.
      */
     public static $statusMap = [
         'yapilacak'  => 'Yapılacak',
@@ -24,7 +31,11 @@ class Task extends Model
     ];
 
     /**
-     * Bu görevin ait olduğu kullanıcıyı döndüren ilişki.
+     * Veritabanı İlişkisi (Relationship): Görev -> Kullanıcı
+     * 
+     * Bu metot, her bir görevin SADECE BİR kullanıcıya ait olduğunu (belongsTo) belirtir.
+     * Eloquent ORM sayesinde artık `$task->user->name` yazarak o görevi kimin oluşturduğunu bulabiliriz.
+     * Laravel arka planda otomatik olarak `user_id` sütununu arar ve `users` tablosuyla eşleştirir.
      */
     public function user()
     {
@@ -32,15 +43,22 @@ class Task extends Model
     }
 
     /**
-     * Giriş yapmış kullanıcının görev durumlarının toplam sayısını hesaplayıp döndüren metot.
-     * Bu metot, ana sayfada kaç görevün hangi kategoride olduğunu göstermek için kullanılır.
-     * @return array ['Yapılacak' => 3, 'Yapılmış' => 2, ...]
+     * Özel Yardımcı Metot: Durum Sayılarını Getir
+     * 
+     * Bu statik metot (Task::getStatusCounts() şeklinde direkt sınıf üzerinden çağrılabilir),
+     * sadece sisteme giriş yapmış olan kullanıcının görev panosu (Dashboard) için istatistikleri hesaplar.
+     * 
+     * @return array ['Yapılacak' => 3, 'Yapılmış' => 2, ...] şeklinde bir dizi döner.
      */
     public static function getStatusCounts()
     {
+        // Şu an oturum açmış kullanıcının ID'sini alırız. (Misafir ise null döner)
         $userId = auth()->id();
 
         return [
+            // self:: bulunduğu modeli (Task) temsil eder.
+            // "where('user_id', $userId)" ile başkalarının görevlerini saymayı engelliyoruz.
+            // count() fonksiyonu eşleşen görevlerin toplam sayısını (rakam olarak) verir.
             'Yapılacak'  => self::where('user_id', $userId)->where('durum', 'Yapılacak')->count(),
             'Yapılmış'   => self::where('user_id', $userId)->where('durum', 'Yapılmış')->count(),
             'Ertelenmiş' => self::where('user_id', $userId)->where('durum', 'Ertelenmiş')->count(),

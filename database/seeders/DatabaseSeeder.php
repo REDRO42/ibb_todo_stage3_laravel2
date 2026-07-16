@@ -11,12 +11,18 @@ class DatabaseSeeder extends Seeder
     use WithoutModelEvents;
 
     /**
-     * Seed the application's database.
+     * Uygulamanın ana seeder (veritabanı doldurucu) metodu.
+     * `php artisan db:seed` komutu çalıştırıldığında ilk olarak bu metod çalışır.
+     * Görevi, projede oluşturduğumuz diğer tüm alt seeder dosyalarını sırasıyla çağırmaktır.
      */
     public function run(): void
     {
+        // call() fonksiyonu içine verilen seeder sınıflarını sırasıyla çalıştırır.
         $this->call([
+            // Önce kullanıcıları oluşturuyoruz ki, görevler eklendiğinde bağlanacak bir kullanıcı olsun.
             UserSeeder::class,
+            
+            // Kullanıcı oluştuktan sonra, görevleri veritabanına ekliyoruz.
             TaskSeeder::class,
         ]);
     }

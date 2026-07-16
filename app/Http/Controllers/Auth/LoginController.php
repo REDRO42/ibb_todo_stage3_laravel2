@@ -7,19 +7,15 @@ use Illuminate\Foundation\Auth\AuthenticatesUsers;
 use Illuminate\Routing\Controllers\HasMiddleware;
 use Illuminate\Routing\Controllers\Middleware;
 
+/**
+ * LoginController (Giriş Yapma Kontrolcüsü)
+ * Bu sınıf, kullanıcıların sisteme e-posta ve şifreleriyle giriş yapmalarını sağlar.
+ * Laravel UI paketi tarafından otomatik oluşturulmuştur.
+ * "AuthenticatesUsers" trait'i (özelliği) sayesinde login işleminin tüm arka plan kodlarını (şifre doğrulama, oturum açma) kendi içinde halleder.
+ */
 class LoginController extends Controller implements HasMiddleware
 {
-    /*
-    |--------------------------------------------------------------------------
-    | Login Controller
-    |--------------------------------------------------------------------------
-    |
-    | This controller handles authenticating users for the application and
-    | redirecting them to your home screen. The controller uses a trait
-    | to conveniently provide its functionality to your applications.
-    |
-    */
-
+    // Laravel'in hazır giriş yapma mekanizmalarını sınıfa dahil eder
     use AuthenticatesUsers;
 
     /**

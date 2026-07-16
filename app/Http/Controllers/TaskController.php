@@ -9,14 +9,18 @@ class TaskController extends Controller
 {
     /**
      * Yapılacak görevleri listeleyen metot.
-     * Bu metot veritabanından sadece "Yapılacak" durumundaki görevleri çeker ve ilgili sayfaya gönderir.
+     * Kullanıcının henüz tamamlamadığı ana görevleri bu sayfada gösteriyoruz.
      */
     public function yapilacaklar()
     {
-        // Sadece giriş yapmış kullanıcıya ait yapılacak görevleri getirir.
+        // 1. auth()->user(): Şu an sisteme giriş yapmış olan kullanıcıyı temsil eder.
+        // 2. ->tasks(): Bu kullanıcının sahip olduğu tüm görevleri çeken veritabanı ilişkisidir.
+        // 3. ->where('durum', 'Yapılacak'): Sadece durumu 'Yapılacak' olanları filtreler.
+        // 4. ->get(): Filtrelenen verileri veritabanından bir koleksiyon (liste) olarak getirir.
         $tasks = auth()->user()->tasks()->where('durum', 'Yapılacak')->get();
 
-        // Görüntü katmanına görev listesi ve toplam sayı iletilir.
+        // resources/views/tasks/yapilacaklar.blade.php dosyasını ekrana basar.
+        // İkinci parametredeki dizi ile view dosyasına $tasks (görev listesi) ve $count (görev sayısı) değişkenlerini yolluyoruz.
         return view('tasks.yapilacaklar', [
             'tasks' => $tasks,
             'count' => $tasks->count(),
@@ -25,14 +29,14 @@ class TaskController extends Controller
 
     /**
      * Tamamlanmış görevleri listeleyen metot.
-     * Bu metot, veritabanında "Yapılmış" olarak işaretlenmiş görevleri bulur ve ayrı bir sayfada gösterir.
+     * Kullanıcının bitirdiği görevleri arşiv niyetine gördüğü sayfa.
      */
     public function yapilmislar()
     {
-        // Sadece giriş yapmış kullanıcıya ait tamamlanmış görevleri getirir.
+        // Sadece giriş yapmış kullanıcıya ait, durumu 'Yapılmış' olan görevleri getirir.
         $tasks = auth()->user()->tasks()->where('durum', 'Yapılmış')->get();
 
-        // Görevlerin listesi ve adet bilgisi view'e gönderilir.
+        // Verileri tasks.yapilmislar view dosyasına aktarır.
         return view('tasks.yapilmislar', [
             'tasks' => $tasks,
             'count' => $tasks->count(),
@@ -41,14 +45,14 @@ class TaskController extends Controller
 
     /**
      * Ertelenmiş görevleri listeleyen metot.
-     * Bu metot, daha sonra yapılması planlanan ama şu an beklemede olan görevleri filtreler.
+     * Bugün yapılmayacak, ileri bir tarihe atılmış görevler burada listelenir.
      */
     public function ertelenenler()
     {
-        // Sadece giriş yapmış kullanıcıya ait ertelenmiş görevleri çekip listeler.
+        // Durumu 'Ertelenmiş' olan görevleri filtreler.
         $tasks = auth()->user()->tasks()->where('durum', 'Ertelenmiş')->get();
 
-        // Görünüme görev listesi ve toplam adet bilgisi gönderilir.
+        // Verileri tasks.ertelenenler view dosyasına aktarır.
         return view('tasks.ertelenenler', [
             'tasks' => $tasks,
             'count' => $tasks->count(),
@@ -57,14 +61,14 @@ class TaskController extends Controller
 
     /**
      * Taslak durumundaki görevleri listeleyen metot.
-     * Henüz tamamlanmamış ya da kayda değer görülmeyen görevlerin bekleme listesi burada görüntülenir.
+     * Üzerinde henüz kesin karar verilmemiş, not niteliğindeki görevlerdir.
      */
     public function taslaklar()
     {
-        // Sadece giriş yapmış kullanıcıya ait taslak görevleri getirir.
+        // Durumu 'Taslak' olan görevleri filtreler.
         $tasks = auth()->user()->tasks()->where('durum', 'Taslak')->get();
 
-        // Taslak görevlerin listesi görünüm katmanına iletilir.
+        // Verileri tasks.taslaklar view dosyasına aktarır.
         return view('tasks.taslaklar', [
             'tasks' => $tasks,
             'count' => $tasks->count(),
@@ -73,39 +77,44 @@ class TaskController extends Controller
 
     /**
      * Yeni görev eklemek için form sayfasını gösteren metot.
-     * Kullanıcıya görev başlığı, tarih ve durum seçimi için giriş formunu sunar.
+     * Sadece HTML arayüzünü ekrana basar, işlem yapmaz.
      */
     public function create()
     {
-        // Yeni görev ekleme formunu görüntüler.
+        // resources/views/tasks/ekle.blade.php dosyasını gösterir.
         return view('tasks.ekle');
     }
 
     /**
-     * Yeni görevi doğrulayıp veritabanına kaydeden metot.
-     * Formdan gelen verinin geçerli olup olmadığını kontrol eder ve ardından görevi kaydeder.
+     * Yeni görevi veritabanına kaydeden metot.
+     * Ekleme formundan (create metodu) gelen veriler POST isteğiyle bu metoda düşer.
+     * Request sınıfı, formdan gelen (input) tüm verilere ulaşmamızı sağlar.
      */
     public function store(Request $request)
     {
-        // Gelen form verisini kurallara göre doğrular.
+        // 1. Doğrulama (Validation): Formdan gelen verilerin kurallara uyup uymadığını kontrol ediyoruz.
+        // Hatalıysa Laravel otomatik olarak formu geldiği yere geri gönderir ve hata mesajlarını gösterir.
         $request->validate([
-            'baslik' => 'required|string|max:255',
-            'tarih'  => 'required|date',
-            'durum'  => 'required|in:yapilacak,yapilmis,ertelenmis,taslak',
+            'baslik' => 'required|string|max:255', // Zorunlu, metin, maksimum 255 karakter
+            'tarih'  => 'required|date',           // Zorunlu, geçerli bir tarih olmalı
+            'durum'  => 'required|in:yapilacak,yapilmis,ertelenmis,taslak', // Zorunlu ve sadece bu 4 seçenekten biri olmalı
         ]);
 
-        // URL anahtarını, kullanıcıya gösterilecek gerçek durum adıyla eşler.
+        // 2. Formdan gelen durum anahtarını ('yapilacak'), veritabanına yazılacak gerçek metne ('Yapılacak') çeviriyoruz.
+        // Task::$statusMap dizisi Task modeli içinde tanımladığımız bir eşleştirme tablosudur.
         $durumAdi = Task::$statusMap[$request->durum];
 
-        // Yeni görev kaydı oluşturur ve giriş yapmış kullanıcıya bağlar.
+        // 3. Veritabanına kayıt işlemi:
+        // auth()->user()->tasks()->create() kullanımı, görevi direkt giriş yapan kullanıcının ID'si ile ilişkilendirerek (user_id) kaydeder.
         auth()->user()->tasks()->create([
-            'baslik'   => $request->baslik,
-            'aciklama' => $request->aciklama,
-            'tarih'    => $request->tarih,
-            'durum'    => $durumAdi,
+            'baslik'   => $request->baslik,     // Formdan gelen 'baslik' inputu
+            'aciklama' => $request->aciklama,   // Formdan gelen 'aciklama' inputu (textarea)
+            'tarih'    => $request->tarih,      // Formdan gelen 'tarih' inputu
+            'durum'    => $durumAdi,            // Üst satırda çevirdiğimiz gerçek durum adı
         ]);
 
-        // Kaydetme işleminden sonra ilgili durum sayfasına yönlendirir.
+        // 4. Kullanıcıyı, yeni eklediği görevin durumuna göre ilgili listeye yönlendiriyoruz.
+        // Örneğin durum 'yapilacak' ise 'tasks/yapilacaklar' adresine gidecek.
         $redirectMap = [
             'yapilacak'  => 'tasks/yapilacaklar',
             'yapilmis'   => 'tasks/yapilmislar',
@@ -113,30 +122,35 @@ class TaskController extends Controller
             'taslak'     => 'tasks/taslaklar',
         ];
 
+        // redirect() fonksiyonu kullanıcıyı belirtilen URL'ye yönlendirir.
         return redirect($redirectMap[$request->durum]);
     }
 
     /**
-     * Bir görevin durumunu güncelleyen metot.
-     * URL: /tasks/{id}/status/{statusKey}
+     * Var olan bir görevin durumunu güncelleyen metot (Örn: Yapılacaklardan -> Yapılmışlara taşıma).
+     * URL: /tasks/{id}/status/{statusKey} şeklindedir ve parametreleri URL'den alır.
      *
-     * @param int    $id        Görev ID
-     * @param string $statusKey Durum anahtarı (yapilacak, yapilmis, ertelenmis, taslak)
+     * @param int    $id        Güncellenecek görevin veritabanındaki ID numarası
+     * @param string $statusKey Yeni durumun kısa anahtarı (örn: 'yapilmis')
      */
     public function updateStatus($id, $statusKey)
     {
-        // Geçersiz durum anahtarı gelirse güvenli bir şekilde ana sayfaya yönlendirir.
+        // 1. Güvenlik Kontrolü: URL'den gelen durum anahtarı bizim belirlediğimiz 4 seçenekten biri değilse,
+        // işlemi reddedip kullanıcıyı ana sayfaya yönlendiriyoruz.
         if (!isset(Task::$statusMap[$statusKey])) {
             return redirect('/');
         }
 
-        // Verilen ID'ye ait görevi bulur ve kullanıcının kendi görevi olduğunu doğrular.
+        // 2. Güvenlik ve Veri Çekme: 
+        // a) auth()->user()->tasks() diyerek KESİNLİKLE sadece bu kullanıcının görevleri içinde arama yapıyoruz. (Böylece başkasının görevi güncellenemez)
+        // b) where('id', $id) ile sadece istediğimiz ID'yi arıyoruz.
+        // c) firstOrFail() ile kaydı getiriyoruz. Eğer bu ID'de bir görev yoksa veya başkasına aitse Laravel otomatik olarak 404 (Bulunamadı) hatası fırlatır.
         $task = auth()->user()->tasks()->where('id', $id)->firstOrFail();
 
-        // Görevin durumunu yeni değerle günceller.
+        // 3. Güncelleme: Bulduğumuz görevin durumunu (durum), statusMap'ten aldığımız yeni gerçek metin ile ('Yapılmış' vb.) güncelliyoruz.
         $task->update(['durum' => Task::$statusMap[$statusKey]]);
 
-        // Güncellenen görev, ait olduğu durum sayfasına yönlendirilir.
+        // 4. Yönlendirme: Görevi nereye taşıdıysa, kullanıcıyı o sayfanın listesine geri yönlendiriyoruz.
         $redirectMap = [
             'yapilacak'  => 'tasks/yapilacaklar',
             'yapilmis'   => 'tasks/yapilmislar',

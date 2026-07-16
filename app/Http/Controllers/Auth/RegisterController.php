@@ -10,19 +10,14 @@ use Illuminate\Routing\Controllers\Middleware;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 
+/**
+ * RegisterController (Kayıt Olma Kontrolcüsü)
+ * Bu sınıf, uygulamaya yeni üyelerin kayıt işlemlerini üstlenir.
+ * Gelen verinin doğrulanması (validation) ve veritabanına kullanıcı olarak eklenmesi (create) bu dosyada yapılır.
+ */
 class RegisterController extends Controller implements HasMiddleware
 {
-    /*
-    |--------------------------------------------------------------------------
-    | Register Controller
-    |--------------------------------------------------------------------------
-    |
-    | This controller handles the registration of new users as well as their
-    | validation and creation. By default this controller uses a trait to
-    | provide this functionality without requiring any additional code.
-    |
-    */
-
+    // Laravel'in hazır kayıt olma işlemlerini sağlayan özellik (trait)
     use RegistersUsers;
 
     /**

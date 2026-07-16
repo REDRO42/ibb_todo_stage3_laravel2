@@ -18,17 +18,29 @@ class UserFactory extends Factory
     protected static ?string $password;
 
     /**
-     * Define the model's default state.
+     * User modeli için varsayılan rastgele veri şablonunu belirler.
+     * `User::factory()->create()` çağrıldığında ve özel veri belirtilmediğinde buradaki kurallar işler.
      *
      * @return array<string, mixed>
      */
     public function definition(): array
     {
         return [
+            // fake() fonksiyonu Faker kütüphanesini çağırır ve bize sahte veriler üretir.
+            
+            // Rastgele bir insan ismi üretir (örn: John Doe)
             'name' => fake()->name(),
+            
+            // Benzersiz ve geçerli formata sahip rastgele bir e-posta üretir (örn: x@example.org)
             'email' => fake()->unique()->safeEmail(),
+            
+            // E-postanın doğrulandığı tarihi şu anki zaman (now()) olarak ayarlar
             'email_verified_at' => now(),
+            
+            // Şifreyi belirler. Eğer daha önce belirlenmişse onu kullanır, yoksa 'password' kelimesini şifreleyerek atar
             'password' => static::$password ??= Hash::make('password'),
+            
+            // "Beni Hatırla" özelliği için rastgele 10 karakterlik bir token oluşturur
             'remember_token' => Str::random(10),
         ];
     }
